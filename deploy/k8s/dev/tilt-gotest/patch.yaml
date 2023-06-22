@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tilt-gotest
+
+spec:
+  selector:
+    matchLabels:
+      app: tilt-gotest
+  
+  template:
+    metadata:
+      labels:
+        app: tilt-gotest
+    
+    spec:
+      containers:
+      - name: tilt-gotest
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          runAsUser: 10001
+          runAsGroup: 10001
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+              - ALL
+            add:
+              - IPC_LOCK
+              - SYS_NICE

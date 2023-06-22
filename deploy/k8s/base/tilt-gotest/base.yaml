@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tilt-gotest
+
+spec:
+  selector:
+    matchLabels:
+      app: tilt-gotest
+  
+  template:
+    metadata:
+      labels:
+        app: tilt-gotest
+    
+    spec:
+      terminationGracePeriodSeconds: 60
+      
+      containers:
+      - name: tilt-gotest
+        image: tilt-gotest:1.0
+        
+        ports:
+        - name: http
+          containerPort: 9090
+        
+        readinessProbe: # readiness probes mark the service available to accept traffic.
+          httpGet:
+            path: /
+            port: 9090
+        
+        livenessProbe: # liveness probes mark the service alive or dead (to be restarted).
+          httpGet:
+            path: /
+            port: 9090
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+
+        volumeMounts:
+        - mountPath: /data
+          name: datadir
+      volumes:
+      - emptyDir:
+        name: datadir
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tilt-gotest
+spec:
+  selector:
+    app: tilt-gotest
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
